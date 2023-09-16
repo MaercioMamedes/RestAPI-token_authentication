@@ -8,6 +8,7 @@ class Register(models.Model):
     username = models.CharField('username', max_length=50)
     phone = models.CharField('phone', max_length=11)
     email = models.EmailField('email')
+    password = models.EmailField('password')
 
     def __str__(self):
         return self.name
