@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap5',
     'rest_framework',
+    'rest_framework.authtoken',
     'register',
     'api',
 ]
