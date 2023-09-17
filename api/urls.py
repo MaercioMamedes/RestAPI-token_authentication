@@ -10,5 +10,5 @@ router.register('register', RegisterViewSet, basename='register')
 urlpatterns = router.urls
 
 urlpatterns += [
-    path('token/', CustomAuthToken.as_view())
+    path('token/', CustomAuthToken.as_view(), name='token')
 ]

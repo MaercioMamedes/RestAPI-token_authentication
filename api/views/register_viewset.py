@@ -10,20 +10,23 @@ from rest_framework.authentication import TokenAuthentication
 
 
 class RegisterViewSet(ModelViewSet):
+    """Views set for class Register"""
+
     queryset = Register.objects.all()
     http_method_names = ['get', 'put', 'patch', 'post', 'delete']
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
+        """assign authentication exception to create resource"""
+
         if self.action in ('create',):
             self.permission_classes = [AllowAny, ]
         return super(self.__class__, self).get_permissions()
 
-    def get_serializer_class(self):
-        return RegisterUpdateSerializer()
-
     def get_serializer(self, *args, **kwargs):
+        """getting serializer according to the request type"""
+
         if self.request.method == 'POST':
             serializer = RegisterSerializer(data=self.request.data)
             return serializer
@@ -33,6 +36,9 @@ class RegisterViewSet(ModelViewSet):
             return serializer
 
     def create(self, request, *args, **kwargs):
+        """Create New resource"""
+        # This method does not need authentication
+
         serializer = self.get_serializer()
 
         if serializer.is_valid():
@@ -64,6 +70,7 @@ class RegisterViewSet(ModelViewSet):
             )
 
     def list(self, request, *args, **kwargs):
+        """list all objects of the Register class"""
 
         def format_register(list_registers):
             registers_formatted = []
@@ -80,6 +87,8 @@ class RegisterViewSet(ModelViewSet):
         return Response(format_register(self.queryset))
 
     def update(self, request, *args, **kwargs):
+        """updates all fields of a Register class object, except the password"""
+
         serializer = self.get_serializer()
 
         if serializer.is_valid():
@@ -109,6 +118,8 @@ class RegisterViewSet(ModelViewSet):
             )
 
     def partial_update(self, request, *args, **kwargs):
+        """partial updates of Register class fields, except password"""
+
         serializer = self.get_serializer()
         register = Register.objects.get(pk=kwargs['pk'])
 
@@ -143,13 +154,16 @@ class RegisterViewSet(ModelViewSet):
             )
 
     def destroy(self, request, *args, **kwargs):
-        register = Register.objects.get(pk=kwargs['pk'])
+        """deletes object from Register class by ID"""
 
+        register = Register.objects.get(pk=kwargs['pk'])
         register.user.delete()
 
         return Response({"detail": "Register deleted"}, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
+        """retrieve object from Register class by ID"""
+
         register = Register.objects.get(pk=kwargs['pk'])
 
         return Response(
