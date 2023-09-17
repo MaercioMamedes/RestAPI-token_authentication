@@ -5,11 +5,20 @@ from register.models import Register
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.models import User
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import TokenAuthentication
 
 
 class RegisterViewSet(ModelViewSet):
     queryset = Register.objects.all()
     http_method_names = ['get', 'put', 'patch', 'post', 'delete']
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ('create',):
+            self.permission_classes = [AllowAny, ]
+        return super(self.__class__, self).get_permissions()
 
     def get_serializer_class(self):
         return RegisterUpdateSerializer()
@@ -36,7 +45,7 @@ class RegisterViewSet(ModelViewSet):
                 username=username,
                 email=email,
                 first_name=first_name,
-                )
+            )
 
             user.set_password(password)
 
@@ -139,3 +148,18 @@ class RegisterViewSet(ModelViewSet):
         register.user.delete()
 
         return Response({"detail": "Register deleted"}, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, *args, **kwargs):
+        register = Register.objects.get(pk=kwargs['pk'])
+
+        return Response(
+            {
+                "id": register.id,
+                "fullname": register.fullname,
+                "username": register.user.username,
+                "email": register.user.email,
+                "phone": register.phone,
+                "user_id": register.user.id
+            },
+            status=status.HTTP_200_OK
+        )
