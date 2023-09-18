@@ -24,6 +24,7 @@ class AuthenticationTestCase(APITestCase):
         )
 
         self.url = reverse("token")
+        self.url_register = reverse("register-list")
         self.token = Token.objects.get_or_create(user=self.register.user)[0]
 
     def test_get_token(self):
@@ -38,3 +39,39 @@ class AuthenticationTestCase(APITestCase):
     def test_when_user_enters_invalid_data_it_returns_error_400(self):
         response = self.client.post(self.url, {"data": "user01", "invalid": "234"}, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_when_user_accesses_register_list_without_authentication_returns_error_401(self):
+        response = self.client.get(f'{self.url_register}')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_when_user_accesses_register_by_ID_without_authentication_it_returns_401(self):
+        response = self.client.get(f'{self.url_register}1/')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_when_user_tries_to_update_without_authentication_it_returns_error_401(self):
+        response = self.client.put(f'{self.url_register}1/',
+                                   data={
+                                       'fullname': 'Novo Teste',
+                                       'username': 'novo01',
+                                       'phone': '9888566565',
+                                       'email': 'novo@novo',
+                                   },
+                                   format='json'
+                                   )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_when_user_tries_to_partial_update_without_authentication_it_returns_error_401(self):
+        response = self.client.patch(f'{self.url_register}1/',
+                                     data={
+                                         'fullname': 'Novo Teste',
+                                         'username': 'novo01',
+                                     },
+                                     format='json'
+                                     )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_when_use_tries_to_delete_resource_without_being_authenticated_it_returns_error_401(self):
+        response = self.client.delete(f'{self.url_register}1/')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
